@@ -3,26 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <style>
+    * {
+      box-sizing: border-box;
+      border: 0;
+      padding: 0;
+    }
+
     html, body {
       width: 100%;
-      height:100%;
+      height: 100%;
       padding: 0;
       margin: 0;
     }
 
-      body > header {
+    body {
+      /*box-shadow: 0 0 10px #719ECE;
+      border: 1px solid gray;*/
+      display: grid;
+      overflow: hidden;
+      grid-template-rows: 32px minmax(0,1fr)
+    }
+
+      body > * {
         width: 100%;
-        height: 32px;
-        background-color: aquamarine;
-        -webkit-user-select: none;
-        -webkit-app-region: drag;
+        height: 100%;
       }
+
+    header {
+      width: 100%;
+      height: 32px;
+      background-color: #50ffc4;
+      -webkit-user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    #content {
+      padding: 6px;
+      background-color: #9fffc1
+    }
+
+      #content > textarea {
+        width: 100%;
+        height: 100%;
+        resize: none;
+        background-color: transparent;
+      }
+
+        #content > textarea:focus {
+          /*border: 1px solid gray;*/
+          outline: none;
+        }
   </style>
 </head>
 
 <body>
   <header></header>
-  <section></section>
+  <section id="content">
+    <textarea></textarea>
+  </section>
 </body>
 
 </html>

@@ -1,5 +1,7 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow } = require('electron')
+const debug = require('electron-debug');
+debug();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -23,12 +25,13 @@ function createWindow() {
 	mainWindow.setIgnoreMouseEvents(true)
 
 
-	for (let i of [1, 2]) {
+	for (let i of [1,2]) {
 		let component = new BrowserWindow({
 			x: 30,
 			y: 30,
 			width: 300,
 			height: 300 + 32,
+			transparent: true,
 			frame: false,
 			backgroundColor: '#000',
 			parent: mainWindow
