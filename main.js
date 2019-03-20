@@ -10,23 +10,25 @@ let components = []
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
+		width: 1,
+		height: 1,
+		y: -1,
+		x: -1,
 		transparent: true,
 		frame: false,
-		show: false,
 		webPreferences: {
 			nodeIntegration: true
 		}
 	})
+	mainWindow.setIgnoreMouseEvents(true)
 
-	mainWindow.show()
+
 	for (let i of [1, 2]) {
 		let component = new BrowserWindow({
 			x: 30,
 			y: 30,
-			width: 100,
-			height: 200,
+			width: 300,
+			height: 300 + 32,
 			frame: false,
 			backgroundColor: '#000',
 			parent: mainWindow
@@ -34,7 +36,7 @@ function createWindow() {
 		component.loadFile('note.html')
 		components.push(component)
 	}
-	
+
 
 
 	// Emitted when the window is closed.
