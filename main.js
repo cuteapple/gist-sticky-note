@@ -21,17 +21,20 @@ function createWindow() {
 	})
 
 	mainWindow.show()
-	let component = new BrowserWindow({
-		x: 30,
-		y: 30,
-		width: 100,
-		height: 200,
-		frame: false,
-		backgroundColor: '#000',
-		parent: mainWindow
-	})
-	component.loadFile('note.html')
-	components.push(component)
+	for (let i of [1, 2]) {
+		let component = new BrowserWindow({
+			x: 30,
+			y: 30,
+			width: 100,
+			height: 200,
+			frame: false,
+			backgroundColor: '#000',
+			parent: mainWindow
+		})
+		component.loadFile('note.html')
+		components.push(component)
+	}
+	
 
 
 	// Emitted when the window is closed.

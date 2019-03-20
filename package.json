@@ -16,5 +16,8 @@
   "author": "cuteapple",
   "devDependencies": {
     "electron": "^4.0.7"
+  },
+  "dependencies": {
+    "electron-debug": "^2.1.0"
   }
 }
