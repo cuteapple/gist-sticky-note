@@ -5,7 +5,7 @@ const { app, BrowserWindow } = require('electron')
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-let component = []
+let components = []
 
 function createWindow() {
 	// Create the browser window.
@@ -21,7 +21,7 @@ function createWindow() {
 	})
 
 	mainWindow.show()
-	component.push(new BrowserWindow({
+	let component = new BrowserWindow({
 		x: 30,
 		y: 30,
 		width: 100,
@@ -29,7 +29,10 @@ function createWindow() {
 		frame: false,
 		backgroundColor: '#000',
 		parent: mainWindow
-	}))
+	})
+	component.loadFile('note.html')
+	components.push(component)
+
 
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
