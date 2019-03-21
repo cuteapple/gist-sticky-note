@@ -3,13 +3,13 @@ const { app, BrowserWindow } = require('electron')
 const debug = require('electron-debug');
 debug();
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
+/**@type {BrowserWindow} */
 let mainWindow
 
-let components = []
+/**@type {Set<BrowserWindow>} */
+let notes = new Set()
 
-function createWindow() {
+function initialize() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
 		width: 1,
@@ -26,35 +26,30 @@ function createWindow() {
 
 
 	for (let i of [1]) {
-		let component = new BrowserWindow({
+		let note = new BrowserWindow({
 			x: 30,
 			y: 30,
 			width: 300,
 			height: 300 + 32,
-			transparent: true,
+			transparent: false,
 			frame: false,
-			backgroundColor: '#000',
+			backgroundColor: '#f0f',
 			parent: mainWindow
 		})
-		component.loadFile('note.html')
-		components.push(component)
+		note.loadFile('note.html')
+		note.on('closed', () => {
+			notes.delete(note)
+			if (!notes.size) mainWindow.close()
+		})
+		notes.add(note)
 	}
 
-
-
-	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
-		// Dereference the window object, usually you would store windows
-		// in an array if your app supports multi windows, this is the time
-		// when you should delete the corresponding element.
 		mainWindow = null
 	})
 }
+app.on('ready', initialize)
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -72,6 +67,3 @@ app.on('activate', function () {
 		createWindow()
 	}
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
