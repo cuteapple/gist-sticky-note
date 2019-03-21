@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      box-sizing: border-box;
+      border: 0;
+      padding: 0;
+    }
+
+
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      /*box-shadow: 0 0 10px #719ECE;
+      border: 1px solid gray;*/
+      display: grid;
+      overflow: hidden;
+      grid-template-rows: 32px minmax(0,1fr)
+    }
+
+    header {
+      width: 100%;
+      height: 32px;
+      display: grid;
+      background-color: #50ffc4;
+      grid-template-columns: minmax(0,1fr) auto;
+      -webkit-user-drag: none;
+    }
+
+      header * {
+        -webkit-user-drag: none;
+      }
+
+
+    #window-handle {
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
+      -webkit-user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    #window-toolbar {
+      height: 100%;
+      background-color: transparent;
+    }
+
+      #window-toolbar > * {
+        width: 32px;
+        height: 32px;
+      }
+
+    button {
+      position: relative;
+      background-color: transparent;
+      border: none;
+    }
+
+      button:focus {
+        outline: none;
+        box-shadow: none;
+      }
+
+        button:focus::after {
+          content:'';
+          display:block;
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          border: 2px solid black;
+        }
+
+    #content {
+      width: 100%;
+      height: 100%;
+      padding: 6px;
+      background-color: #9fffc1
+    }
+
+      #content > textarea {
+        width: 100%;
+        height: 100%;
+        resize: none;
+        background-color: transparent;
+      }
+
+        #content > textarea:focus {
+          /*border: 1px solid gray;*/
+          outline: none;
+        }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div id="window-handle"></div>
+    <div id="window-toolbar">
+      <button onclick="alert('exit')">
+        <img src="exit-icon.png" style="width:100%;height:100%; object-fit:contain" />
+      </button>
+    </div>
+  </header>
+  <section id="content">
+    <textarea></textarea>
+  </section>
+</body>
+
+</html>
