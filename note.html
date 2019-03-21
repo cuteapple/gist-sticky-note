@@ -70,8 +70,8 @@
       }
 
         button:focus::after {
-          content:'';
-          display:block;
+          content: '';
+          display: block;
           position: absolute;
           left: 0;
           right: 0;
@@ -105,7 +105,7 @@
   <header>
     <div id="window-handle"></div>
     <div id="window-toolbar">
-      <button onclick="alert('exit')">
+      <button onclick="window.CloseWindow()">
         <img src="exit-icon.png" style="width:100%;height:100%; object-fit:contain" />
       </button>
     </div>
@@ -113,6 +113,13 @@
   <section id="content">
     <textarea></textarea>
   </section>
-</body>
 
+  <script>
+    const { remote } = require('electron')
+    function CloseWindow() {
+      remote.getCurrentWindow().close()
+    }
+    console.log('pass')
+  </script>
+</body>
 </html>
