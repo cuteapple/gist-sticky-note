@@ -25,7 +25,7 @@ function createWindow() {
 	mainWindow.setIgnoreMouseEvents(true)
 
 
-	for (let i of [1,2]) {
+	for (let i of [1]) {
 		let component = new BrowserWindow({
 			x: 30,
 			y: 30,
