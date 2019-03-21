@@ -5,11 +5,10 @@
   <style>
     * {
       box-sizing: border-box;
-      border: 0;
+      border: none;
       padding: 0;
+      margin: 0;
     }
-
-
 
     html, body {
       width: 100%;
@@ -19,8 +18,8 @@
     }
 
     body {
-      /*box-shadow: 0 0 10px #719ECE;
-      border: 1px solid gray;*/
+      /*box-shadow: 0 0 10px #719ECE;*/
+      /*border: 1px solid gray;*/
       display: grid;
       overflow: hidden;
       grid-template-rows: 32px minmax(0,1fr)
@@ -32,10 +31,10 @@
       display: grid;
       background-color: #50ffc4;
       grid-template-columns: minmax(0,1fr) auto;
-      -webkit-user-drag: none;
     }
 
-      header * {
+      header, header * {
+        -webkit-user-select: none;
         -webkit-user-drag: none;
       }
 
@@ -105,7 +104,7 @@
   <header>
     <div id="window-handle"></div>
     <div id="window-toolbar">
-      <button onclick="window.CloseWindow()">
+      <button onclick="CloseWindow()">
         <img src="exit-icon.png" style="width:100%;height:100%; object-fit:contain" />
       </button>
     </div>

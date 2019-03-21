@@ -1,7 +1,5 @@
-// Modules to control application life and create native browser window
 const { app, BrowserWindow } = require('electron')
-const debug = require('electron-debug');
-debug();
+require('electron-debug')();
 
 /**@type {BrowserWindow} */
 let mainWindow
@@ -12,10 +10,7 @@ let notes = new Set()
 function initialize() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1,
-		height: 1,
-		y: -1,
-		x: -1,
+		x: -1, y: -1, width: 1, height: 1,
 		transparent: true,
 		frame: false,
 		webPreferences: {
