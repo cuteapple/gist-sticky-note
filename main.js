@@ -9,7 +9,7 @@ let notes = new Set()
 
 
 function initialize() {
-	// Create the browser window.
+
 	mainWindow = new BrowserWindow({
 		//x: -1, y: -1, width: 1, height: 1,
 		transparent: true,
