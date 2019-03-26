@@ -1,7 +1,8 @@
 {
   "name": "gist-sticky-note",
-  "version": "0.3.0",
   "description": "a versioned sticky note use gist (or git) as stroage",
+  "version": "0.3.0",
+  "author": "cuteapple",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
@@ -16,7 +17,6 @@
     "note",
     "sticky-note"
   ],
-  "author": "cuteapple",
   "devDependencies": {
     "electron": "^4.0.7"
   },
