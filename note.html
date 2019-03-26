@@ -123,7 +123,33 @@
     console.log(`note ${id} opened`)
 
     function load() {
-      textContentElement.value = localStorage[id] || ''
+      const default_config = {
+        bounds: remote.getCurrentWindow().getBounds(),
+        content: '',
+      }
+
+      //TODO: proper update method (use indexdb?)
+      let memory = {}
+      memory.content = localStorage[id] || ''
+      try {
+        memory.bounds = JSON.parse(localStorage[id + '.bound'])
+      } catch{ }
+
+      let config = {
+        ...default_config,
+        ...memory
+      }
+
+      textContentElement.value = config.content
+      console.log(default_config, memory, config)
+      remote.getCurrentWindow().setBounds(config.bounds)
+    }
+
+
+    remote.getCurrentWindow().addListener('moved', save_bounds)
+    remote.getCurrentWindow().addListener('resize', save_bounds)
+    function save_bounds() {
+      localStorage[id + '.bound'] = JSON.stringify(remote.getCurrentWindow().getBounds())
     }
 
     function save() {
