@@ -7,12 +7,14 @@ let mainWindow
 /**@type {Set<BrowserWindow>} */
 let notes = new Set()
 
+
 function initialize() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		x: -1, y: -1, width: 1, height: 1,
+		//x: -1, y: -1, width: 1, height: 1,
 		transparent: true,
 		frame: false,
+		x: 100, y: 100, height: 100, width: 100,
 		webPreferences: {
 			nodeIntegration: false
 		}
@@ -20,18 +22,23 @@ function initialize() {
 	mainWindow.setIgnoreMouseEvents(true)
 
 
-	for (let i of [1]) {
+	for (let i of [1, 2]) {
 		let note = new BrowserWindow({
-			x: 30,
-			y: 30,
+			x: 30 + i * 100,
+			y: 30 + i * 100,
 			width: 300,
 			height: 300 + 32,
 			transparent: false,
 			frame: false,
 			backgroundColor: '#f0f',
-			parent: mainWindow
+			parent: mainWindow,
+			webPreferences: {
+				nodeIntegration: true
+			}
 		})
+		note.noteid = i
 		note.loadFile('note.html')
+
 		note.on('closed', () => {
 			notes.delete(note)
 			if (!notes.size) mainWindow.close()

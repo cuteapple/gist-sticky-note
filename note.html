@@ -110,15 +110,30 @@
     </div>
   </header>
   <section id="content">
-    <textarea></textarea>
+    <textarea onchange="Save()"></textarea>
   </section>
 
   <script>
+    /**@type{HTMLTextAreaElement} */
+
+  </script>
+
+  <script>
     const { remote } = require('electron')
+    const id = remote.getCurrentWindow().noteid
+
     function CloseWindow() {
       remote.getCurrentWindow().close()
     }
-    console.log('pass')
+
+    const textContentElement = document.querySelector('#content textarea')
+    textContentElement.value = localStorage[id]
+    function Save() {
+      localStorage[id] = textContentElement.value
+      console.log(`note ${id} saved`)
+    }
+
+    console.log('note opened')
   </script>
 </body>
 </html>
