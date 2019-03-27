@@ -87,6 +87,7 @@
     }
 
       #content > textarea {
+        /*white-space: pre;*/
         width: 100%;
         height: 100%;
         resize: none;
@@ -145,7 +146,6 @@
       remote.getCurrentWindow().show()
       console.log(`note ${id} opened`)
     }
-
 
     remote.getCurrentWindow().addListener('moved', save)
     remote.getCurrentWindow().addListener('resize', save)

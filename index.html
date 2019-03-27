@@ -11,12 +11,12 @@
 </head>
 <body>
   <h1>Hello World!</h1>
+  <div>list of all notes</div>
   <script>
     const { ipcRenderer } = require('electron')
     const localforage = require('localforage')
     localforage.config({})
     localforage.keys().then(notes => {
-      console.log(notes)
       ipcRenderer.send('open-notes', notes)
     })
   </script>
