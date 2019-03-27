@@ -29,13 +29,14 @@ function initialize() {
 			height: 300 + 32,
 			transparent: false,
 			frame: false,
+			show: false,
 			backgroundColor: '#f0f',
 			parent: mainWindow,
 			webPreferences: {
 				nodeIntegration: true
 			}
 		})
-		note.noteid = i
+		note.noteid = i.toString()
 		note.loadFile('note.html')
 
 		note.on('closed', () => {

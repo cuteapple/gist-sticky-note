@@ -142,6 +142,7 @@
 
       textContentElement.value = config.content
       remote.getCurrentWindow().setBounds(config.bounds)
+      remote.getCurrentWindow().show()
       console.log(`note ${id} opened`)
     }
 
