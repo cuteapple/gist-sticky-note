@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-require('electron-debug')()
+//require('electron-debug')()
 
 /**@type {BrowserWindow} */
 let mainWindow
@@ -8,7 +8,6 @@ let mainWindow
 let notes = new Set()
 
 ipcMain.addListener('open-notes', (sender, notes) => {
-	console.log(notes, [1, 2], notes || [1, 2]);
 	(notes || [1, 2]).forEach(open_note)
 })
 function open_note(id) {
@@ -42,7 +41,7 @@ function initialize() {
 		//x: -1, y: -1, width: 1, height: 1,
 		transparent: false,
 		frame: true,
-		x: 100, y: 100, height: 100, width: 100,
+		x: 100, y: 100, height: 300, width: 400,
 		webPreferences: {
 			nodeIntegration: true
 		}
@@ -52,6 +51,7 @@ function initialize() {
 	mainWindow.on('closed', function () {
 		mainWindow = null
 	})
+	mainWindow.webContents.openDevTools()
 }
 app.on('ready', initialize)
 
