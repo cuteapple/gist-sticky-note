@@ -1,5 +1,5 @@
-const { app, BrowserWindow } = require('electron')
-require('electron-debug')();
+const { app, BrowserWindow, ipcMain } = require('electron')
+require('electron-debug')()
 
 /**@type {BrowserWindow} */
 let mainWindow
@@ -7,6 +7,35 @@ let mainWindow
 /**@type {Set<BrowserWindow>} */
 let notes = new Set()
 
+ipcMain.addListener('open-notes', (sender, notes) => {
+	console.log(notes, [1, 2], notes || [1, 2]);
+	(notes || [1, 2]).forEach(open_note)
+})
+function open_note(id) {
+	console.log('opening note ', id)
+	let note = new BrowserWindow({
+		x: 30,
+		y: 30,
+		width: 300,
+		height: 300 + 32,
+		transparent: false,
+		frame: false,
+		show: false,
+		backgroundColor: '#f0f',
+		parent: mainWindow,
+		webPreferences: {
+			nodeIntegration: true
+		}
+	})
+	note.noteid = id
+	note.loadFile('note.html')
+
+	note.on('closed', () => {
+		notes.delete(note)
+		if (!notes.size) mainWindow.close()
+	})
+	notes.add(note)
+}
 
 function initialize() {
 
@@ -16,36 +45,11 @@ function initialize() {
 		frame: false,
 		x: 100, y: 100, height: 100, width: 100,
 		webPreferences: {
-			nodeIntegration: false
+			nodeIntegration: true
 		}
 	})
 	mainWindow.setIgnoreMouseEvents(true)
-
-
-	for (let i of [1, 2]) {
-		let note = new BrowserWindow({
-			x: 30 + i * 100,
-			y: 30 + i * 100,
-			width: 300,
-			height: 300 + 32,
-			transparent: false,
-			frame: false,
-			backgroundColor: '#f0f',
-			parent: mainWindow,
-			webPreferences: {
-				nodeIntegration: true
-			}
-		})
-		note.noteid = i
-		note.loadFile('note.html')
-
-		note.on('closed', () => {
-			notes.delete(note)
-			if (!notes.size) mainWindow.close()
-		})
-		notes.add(note)
-	}
-
+	mainWindow.loadFile('index.html')
 	mainWindow.on('closed', function () {
 		mainWindow = null
 	})

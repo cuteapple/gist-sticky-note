@@ -21,6 +21,7 @@
     "electron": "^4.0.7"
   },
   "dependencies": {
-    "electron-debug": "^2.1.0"
+    "electron-debug": "^2.1.0",
+    "localforage": "^1.7.3"
   }
 }

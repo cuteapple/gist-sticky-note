@@ -1,10 +1,24 @@
 ﻿<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      display:none
+    }
+  </style>
+  <title>Hello World!</title>
+</head>
+<body>
+  <h1>Hello World!</h1>
+  <div>list of all notes</div>
+  <script>
+    const { ipcRenderer } = require('electron')
+    const localforage = require('localforage')
+    localforage.config({})
+    localforage.keys().then(notes => {
+      ipcRenderer.send('open-notes', notes)
+    })
+  </script>
+</body>
 </html>
