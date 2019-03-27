@@ -38,17 +38,16 @@ function open_note(id) {
 }
 
 function initialize() {
-
 	mainWindow = new BrowserWindow({
 		//x: -1, y: -1, width: 1, height: 1,
-		transparent: true,
-		frame: false,
+		transparent: false,
+		frame: true,
 		x: 100, y: 100, height: 100, width: 100,
 		webPreferences: {
 			nodeIntegration: true
 		}
 	})
-	mainWindow.setIgnoreMouseEvents(true)
+	//mainWindow.setIgnoreMouseEvents(true)
 	mainWindow.loadFile('index.html')
 	mainWindow.on('closed', function () {
 		mainWindow = null
