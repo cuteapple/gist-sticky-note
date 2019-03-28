@@ -5,34 +5,66 @@
   <style>
     * {
       /*display: none*/
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
+    #list-of-notes > * {
+      width: 100%;
+      border: 3px solid lightblue;
+      margin: 3px;
     }
   </style>
   <title>Hello World!</title>
 </head>
 <body>
   <h1>Hello World!</h1>
-  <div id="list-of-notes">list of all notes</div>
+  <div id="list-of-notes">
+    list of all notes
+  </div>
   <button onclick="new_note()">new note</button>
+
   <script>
     const { ipcRenderer } = require('electron')
     const localforage = require('localforage')
     const metastorage = localforage.createInstance({ name: 'meta' })
     const notestorage = localforage.createInstance({ name: 'notes' })
 
-    load_notes()
+    {
+      (async () => {
+        let notes = await load_notes()
+        //Todo?: use custom element
+        let noteelements = notes.map(id => {
+          let header = document.createElement('header')
+          header.innerText = id
+          let content = document.createElement('section')
+          content.innerText = '' + id + id + id;
+          let article = document.createElement('article')
+          article.append(header, content)
+          article.dataset.id = id
 
+          article.onclick = () => ipcRenderer.send('open-notes', [article.dataset.id])
+
+          return article
+        })
+
+        document.getElementById('list-of-notes').append(...noteelements)
+      })()
+    }
     async function load_notes() {
       let open_notes = await metastorage.getItem('z-order') || []
 
       //show hidden notes behind since there is currently no method to open them :P
-      {
-        let all_notes = await notestorage.keys() || []
-        let open_notes_set = new Set(open_notes)
-        let hidden_notes = all_notes.filter(n => !open_notes_set.has(n))
-        ipcRenderer.send('open-notes', hidden_notes)
-      }
+      let all_notes = await notestorage.keys() || []
+      let open_notes_set = new Set(open_notes)
+      let hidden_notes = all_notes.filter(n => !open_notes_set.has(n))
+      ipcRenderer.send('open-notes', hidden_notes)
+
 
       ipcRenderer.send('open-notes', open_notes)
+      return all_notes
     }
 
     function new_note() {

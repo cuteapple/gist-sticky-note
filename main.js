@@ -46,7 +46,7 @@ function initialize() {
 		//x: -1, y: -1, width: 1, height: 1,
 		transparent: false,
 		frame: true,
-		x: 100, y: 100, height: 300, width: 400,
+		x: 800, y: 100, height: 300, width: 400,
 		webPreferences: {
 			nodeIntegration: true
 		}
