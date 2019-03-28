@@ -13,10 +13,10 @@ ipcMain.addListener('open-notes', (sender, notes) => {
 function open_note(id) {
 	console.log('opening note ', id)
 	let note = new BrowserWindow({
-		x: 30,
-		y: 30,
-		width: 300,
-		height: 300 + 32,
+		x: 30 + Math.round(Math.random() * 200),
+		y: 30 + Math.round(Math.random() * 200),
+		width: 100 + Math.round(Math.random() * 300),
+		height: 100 + 32 + Math.round(Math.random() * 300),
 		transparent: false,
 		frame: false,
 		show: false,
