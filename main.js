@@ -4,13 +4,19 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 /**@type {BrowserWindow} */
 let mainWindow
 
-/**@type {Set<BrowserWindow>} */
-let notes = new Set()
+/**@typedef {string} NoteId*/
+/**@type {Map<NoteId,BrowserWindow>} */
+let notes = new Map()
 
-ipcMain.addListener('open-notes', (sender, notes) => {
-	(notes || [1, 2]).forEach(open_note)
-})
+ipcMain.addListener('open-note', (sender, noteid) => open_note(noteid))
 function open_note(id) {
+	//check if already open
+	if (notes.has(id)) {
+		notes.get(id).focus()
+		console.log(`bring note ${id} to front`)
+		return
+	}
+
 	console.log('opening note ', id)
 	let note = new BrowserWindow({
 		x: 30 + Math.round(Math.random() * 200),
@@ -30,15 +36,17 @@ function open_note(id) {
 	note.loadFile('note.html')
 	note.on('focus', () => {
 		//refersh z-order
-		notes.delete(note)
-		notes.add(note)
-		mainWindow.webContents.send('order-changed', [...notes].map(n => n.noteid))
+		notes.delete(note.noteid)
+		notes.set(note.noteid, note)
+		//Todo: observe change of notes
+		mainWindow.webContents.send('order-changed', [...notes.keys()])
 	})
 	note.on('closed', () => {
-		notes.delete(note)
-		if (!notes.size) mainWindow.close()
+		notes.delete(note.noteid)
+		//Todo: condition
+		//if (!notes.size) mainWindow.close() //no need when mainWindow is visible
 	})
-	notes.add(note)
+	notes.set(note.noteid, note)
 }
 
 function initialize() {

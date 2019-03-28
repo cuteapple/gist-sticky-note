@@ -45,7 +45,7 @@
           article.append(header, content)
           article.dataset.id = id
 
-          article.onclick = () => ipcRenderer.send('open-notes', [article.dataset.id])
+          article.onclick = () => open_note(article.dataset.id)
 
           return article
         })
@@ -60,15 +60,20 @@
       let all_notes = await notestorage.keys() || []
       let open_notes_set = new Set(open_notes)
       let hidden_notes = all_notes.filter(n => !open_notes_set.has(n))
-      ipcRenderer.send('open-notes', hidden_notes)
 
+      hidden_notes.forEach(open_note)
+      open_notes.forEach(open_note)
 
-      ipcRenderer.send('open-notes', open_notes)
       return all_notes
     }
 
+    function open_note(noteid) {
+      ipcRenderer.send('open-note', noteid)
+    }
+
     function new_note() {
-      ipcRenderer.send('open-notes', ['' + Date.now() + Math.random() * 100000])
+      let id = '' + Date.now() + Math.random() * 100000
+      open_note(id)
     }
 
     ipcRenderer.on('order-changed', (sender, notes_order) => {
