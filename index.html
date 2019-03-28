@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <style>
     * {
-      display:none
+      display: none
     }
   </style>
   <title>Hello World!</title>
@@ -12,12 +12,34 @@
 <body>
   <h1>Hello World!</h1>
   <div>list of all notes</div>
+  <button onclick="new_note()">new note</button>
   <script>
     const { ipcRenderer } = require('electron')
     const localforage = require('localforage')
-    localforage.config({})
-    localforage.keys().then(notes => {
-      ipcRenderer.send('open-notes', notes)
+    const metastorage = localforage.createInstance({ name: 'meta' })
+    const notestorage = localforage.createInstance({})
+    load_notes()
+
+    async function load_notes() {
+      let open_notes = await metastorage.getItem('z-order') || []
+
+      //show hidden notes behind since there is currently no method to open them :P
+      {
+        let all_notes = await notestorage.keys() || []
+        let open_notes_set = new Set(open_notes)
+        let hidden_notes = all_notes.filter(n => !open_notes_set.has(n))
+        ipcRenderer.send('open-notes', hidden_notes)
+      }
+
+      ipcRenderer.send('open-notes', open_notes)
+    }
+
+    function new_note() {
+      ipcRenderer.send('open-notes', ['' + Date.now() + Math.random() * 100000])
+    }
+
+    ipcRenderer.on('order-changed', (sender, notes_order) => {
+      metastorage.setItem('z-order', notes_order)
     })
   </script>
 </body>
