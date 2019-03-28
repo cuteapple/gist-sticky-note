@@ -18,12 +18,26 @@
     const localforage = require('localforage')
     localforage.config({})
     localforage.keys().then(notes => {
-      ipcRenderer.send('open-notes', notes)
+      let open_notes = [];
+      try {
+        open_notes = JSON.parse(localStorage.zorder)
+      } catch{ }
+      let hidden_notes = new Set(notes)
+      open_notes.forEach(note => hidden_notes.delete(note))
+      hidden_notes = [...hidden_notes]
+
+      ipcRenderer.send('open-notes', hidden_notes)
+      ipcRenderer.send('open-notes', open_notes)
     })
 
     function new_note() {
       ipcRenderer.send('open-notes', ['' + Date.now() + Math.random() * 100000])
     }
+
+
+    ipcRenderer.on('order-changed', (sender, order) => {
+      localStorage.zorder = JSON.stringify(order)
+    })
   </script>
 </body>
 </html>

@@ -28,7 +28,12 @@ function open_note(id) {
 	})
 	note.noteid = id
 	note.loadFile('note.html')
-
+	note.on('focus', () => {
+		//refersh z-order
+		notes.delete(note)
+		notes.add(note)
+		mainWindow.webContents.send('order-changed', [...notes].map(n => n.noteid))
+	})
 	note.on('closed', () => {
 		notes.delete(note)
 		if (!notes.size) mainWindow.close()
