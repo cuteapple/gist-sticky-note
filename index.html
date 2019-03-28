@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <style>
     * {
-      display:none
+      display: none
     }
   </style>
   <title>Hello World!</title>
@@ -12,6 +12,7 @@
 <body>
   <h1>Hello World!</h1>
   <div>list of all notes</div>
+  <button onclick="new_note()">new note</button>
   <script>
     const { ipcRenderer } = require('electron')
     const localforage = require('localforage')
@@ -19,6 +20,10 @@
     localforage.keys().then(notes => {
       ipcRenderer.send('open-notes', notes)
     })
+
+    function new_note() {
+      ipcRenderer.send('open-notes', ['' + Date.now() + Math.random() * 100000])
+    }
   </script>
 </body>
 </html>
