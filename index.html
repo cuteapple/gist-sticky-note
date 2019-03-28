@@ -4,20 +4,21 @@
   <meta charset="UTF-8">
   <style>
     * {
-      display: none
+      /*display: none*/
     }
   </style>
   <title>Hello World!</title>
 </head>
 <body>
   <h1>Hello World!</h1>
-  <div>list of all notes</div>
+  <div id="list-of-notes">list of all notes</div>
   <button onclick="new_note()">new note</button>
   <script>
     const { ipcRenderer } = require('electron')
     const localforage = require('localforage')
     const metastorage = localforage.createInstance({ name: 'meta' })
-    const notestorage = localforage.createInstance({})
+    const notestorage = localforage.createInstance({ name: 'notes' })
+
     load_notes()
 
     async function load_notes() {
