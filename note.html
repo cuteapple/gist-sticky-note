@@ -130,7 +130,7 @@
       }
 
       let memory = await localforage.getItem(id).catch(err => {
-        console.log(err)
+        console.warn(`load note ${id} failed: ${err}`)
         return {}
       })
 

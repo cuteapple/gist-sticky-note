@@ -56,12 +56,9 @@
     async function load_notes() {
       let open_notes = await metastorage.getItem('z-order') || []
 
-      //show hidden notes behind since there is currently no method to open them :P
       let all_notes = await notestorage.keys() || []
       let open_notes_set = new Set(open_notes)
-      let hidden_notes = all_notes.filter(n => !open_notes_set.has(n))
 
-      hidden_notes.forEach(open_note)
       open_notes.forEach(open_note)
 
       return all_notes
