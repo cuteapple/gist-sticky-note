@@ -115,8 +115,7 @@
   </section>
 
   <script>
-    const localforage = require('localforage')
-    localforage.config({})
+    const localforage = require('localforage').createInstance({ name: 'notes' })
     const { remote } = require('electron')
     const id = remote.getCurrentWindow().noteid
     /**@type{HTMLTextAreaElement} */
@@ -131,7 +130,7 @@
       }
 
       let memory = await localforage.getItem(id).catch(err => {
-        console.log(err)
+        console.warn(`load note ${id} failed: ${err}`)
         return {}
       })
 

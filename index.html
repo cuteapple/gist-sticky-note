@@ -4,38 +4,70 @@
   <meta charset="UTF-8">
   <style>
     * {
-      display: none
+      /*display: none*/
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
+    #list-of-notes > * {
+      width: 100%;
+      border: 3px solid lightblue;
+      margin: 3px;
     }
   </style>
   <title>Hello World!</title>
 </head>
 <body>
   <h1>Hello World!</h1>
-  <div>list of all notes</div>
-  <button onclick="new_note()">new note</button>
+  <div id="list-of-notes">
+    list of all notes
+  </div>
+  <button ondblclick="new_note()">new note</button>
+
   <script>
     const { ipcRenderer } = require('electron')
     const localforage = require('localforage')
     const metastorage = localforage.createInstance({ name: 'meta' })
-    const notestorage = localforage.createInstance({})
-    load_notes()
+    const notestorage = localforage.createInstance({ name: 'notes' })
 
+    {
+      (async () => {
+        let notes = await load_notes()
+        //Todo?: use custom element
+        let noteelements = notes.map(id => {
+          let header = document.createElement('header')
+          header.innerText = id
+          let content = document.createElement('section')
+          content.innerText = '' + id + id + id;
+          let article = document.createElement('article')
+          article.append(header, content)
+          article.dataset.id = id
+
+          article.onclick = () => open_note(article.dataset.id)
+
+          return article
+        })
+
+        document.getElementById('list-of-notes').append(...noteelements)
+      })()
+    }
     async function load_notes() {
       let open_notes = await metastorage.getItem('z-order') || []
+      let all_notes = await notestorage.keys() || []
+      open_notes.forEach(open_note)
 
-      //show hidden notes behind since there is currently no method to open them :P
-      {
-        let all_notes = await notestorage.keys() || []
-        let open_notes_set = new Set(open_notes)
-        let hidden_notes = all_notes.filter(n => !open_notes_set.has(n))
-        ipcRenderer.send('open-notes', hidden_notes)
-      }
+      return all_notes
+    }
 
-      ipcRenderer.send('open-notes', open_notes)
+    function open_note(noteid) {
+      ipcRenderer.send('open-note', noteid)
     }
 
     function new_note() {
-      ipcRenderer.send('open-notes', ['' + Date.now() + Math.random() * 100000])
+      let id = '' + Date.now() + Math.random() * 100000
+      open_note(id)
     }
 
     ipcRenderer.on('order-changed', (sender, notes_order) => {
