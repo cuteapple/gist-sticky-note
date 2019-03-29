@@ -24,7 +24,7 @@
   <div id="list-of-notes">
     list of all notes
   </div>
-  <button onclick="new_note()">new note</button>
+  <button ondblclick="new_note()">new note</button>
 
   <script>
     const { ipcRenderer } = require('electron')
@@ -55,10 +55,7 @@
     }
     async function load_notes() {
       let open_notes = await metastorage.getItem('z-order') || []
-
       let all_notes = await notestorage.keys() || []
-      let open_notes_set = new Set(open_notes)
-
       open_notes.forEach(open_note)
 
       return all_notes
