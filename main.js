@@ -47,7 +47,6 @@ function open_note(id) {
 		//if (!notes.size) mainWindow.close() //no need when mainWindow is visible
 	})
 	notes.set(note.noteid, note)
-	note.webContents.openDevTools()
 }
 
 function initialize() {
