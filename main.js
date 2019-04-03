@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 //require('electron-debug')()
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true // I like warnning, why I need to disable all :(
 
 /**@type {BrowserWindow} */
 let mainWindow
