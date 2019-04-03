@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-//require('electron-debug')()
-process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true // I like warnning, why I need to disable all :(
+// I like warnning, why I need to disable all :(
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
 
 /**@type {BrowserWindow} */
 let mainWindow
@@ -18,13 +18,13 @@ function open_note(id) {
 		return
 	}
 
-	console.log('opening note ', id)
+	console.log(`opening note ${id}`)
 	let note = new BrowserWindow({
 		x: 30 + Math.round(Math.random() * 200),
 		y: 30 + Math.round(Math.random() * 200),
 		width: 100 + Math.round(Math.random() * 300),
 		height: 100 + 32 + Math.round(Math.random() * 300),
-		transparent: false,
+		transparent: false, 
 		frame: false,
 		show: false,
 		backgroundColor: '#f0f',
@@ -33,6 +33,7 @@ function open_note(id) {
 			nodeIntegration: true
 		}
 	})
+
 	note.noteid = id
 	note.loadFile('note.html')
 	note.on('focus', () => {
