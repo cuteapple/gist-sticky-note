@@ -14,7 +14,7 @@
             padding: 6px;
         }
 
-        #list-of-notes {
+        #list-of-index {
             width: 100%;
             padding: 6px;
         }
@@ -33,7 +33,7 @@
 </head>
 <body>
     <button id="new-note" onclick="new_note()">new note</button>
-    <div id="list-of-notes">
+    <div id="list-of-index">
     </div>
 
     <script>
@@ -41,23 +41,38 @@
         const localforage = require('localforage')
         const metastorage = localforage.createInstance({ name: 'meta' })
         const notestorage = localforage.createInstance({ name: 'notes' })
+        const list_of_index = document.getElementById('list-of-index')
 
-        {
-            (async () => {
-                let open_notes = new Set(await metastorage.getItem('z-order') || [])
-                open_notes = (open_notes)
-                let all_notes = await notestorage.keys() || []
+        initilize()
 
-                for(let id of open_notes) {
-                    open_note(id)
-                    document.getElementById('list-of-notes').append(await createIndexElement(id))
-                }
+        //TODO?: per note wise update (?: more efficent?)
+        async function refersh() {
+            let open_notes = new Set(await metastorage.getItem('z-order') || [])
+            let all_notes = await notestorage.keys() || []
 
-                for(let id of all_notes) {
-                    if(open_notes.has(id)) continue;
-                    document.getElementById('list-of-notes').append(await createIndexElement(id))
-                }
-            })()
+            for(let id of open_notes) {
+                list_of_index.append(await createIndexElement(id))
+            }
+
+            for(let id of all_notes) {
+                if(open_notes.has(id)) continue;
+                list_of_index.append(await createIndexElement(id))
+            }
+        }
+        
+        async function initilize() {
+            let open_notes = new Set(await metastorage.getItem('z-order') || [])
+            let all_notes = await notestorage.keys() || []
+
+            for(let id of open_notes) {
+                open_note(id)
+                list_of_index.append(await createIndexElement(id))
+            }
+
+            for(let id of all_notes) {
+                if(open_notes.has(id)) continue;
+                list_of_index.append(await createIndexElement(id))
+            }
         }
 
         async function createIndexElement(id) {
@@ -84,6 +99,9 @@
         ipcRenderer.on('order-changed', (sender, notes_order) => {
             metastorage.setItem('z-order', notes_order)
         })
+
+        //CHECK: hope I can listen to indexDB change
+        window.addEventListener('focus', refersh)
     </script>
 </body>
 </html>
