@@ -46,20 +46,35 @@
         initilize()
 
         //TODO?: per note wise update (?: more efficent?)
+        //TODO?: only focus on active note (bring to foreground => move to top and listen)
+        //TODO?: check update date
         async function refersh() {
+            let existing_index = new Map([...list_of_index.children].map(e => [e.dataset.id, e]))
             let open_notes = new Set(await metastorage.getItem('z-order') || [])
             let all_notes = await notestorage.keys() || []
 
+            async function update_or_create_index(id) {
+                let current = existing_index.get(id)
+                if(current) {
+                    current.innerText = (await notestorage.getItem(id)).content
+                }
+                else {
+                    current = await createIndexElement(id)
+                }
+                return current
+            }
+
             for(let id of open_notes) {
-                list_of_index.append(await createIndexElement(id))
+                list_of_index.insertAdjacentElement('beforeend', await update_or_create_index(id))
             }
 
             for(let id of all_notes) {
                 if(open_notes.has(id)) continue;
-                list_of_index.append(await createIndexElement(id))
+                list_of_index.insertAdjacentElement('beforeend', await update_or_create_index(id))
             }
+
         }
-        
+
         async function initilize() {
             let open_notes = new Set(await metastorage.getItem('z-order') || [])
             let all_notes = await notestorage.keys() || []
@@ -75,13 +90,14 @@
             }
         }
 
+        //TODO!:custom element (also benefit refresh)
         async function createIndexElement(id) {
             let data = await notestorage.getItem(id)
 
             let content = document.createElement('section')
             content.innerText = data.content
             content.classList.add('note-index')
-
+            content.dataset.id = id
             content.addEventListener('click', () => open_note(id))
 
             return content
