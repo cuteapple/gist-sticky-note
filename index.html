@@ -9,20 +9,32 @@
             padding: 0;
         }
 
-        #list-of-notes > * {
+        #new-note {
+            width: 100%;
+            padding: 6px;
+        }
+
+        #list-of-notes {
+            width: 100%;
+            padding: 6px;
+        }
+
+        .note-index {
             width: 100%;
             border: 3px solid lightblue;
-            margin: 3px;
+            min-height: 3em;
+            max-height: 6em;
+            margin: 3px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
     <title>Note List</title>
 </head>
 <body>
-    <h1>Hello World!</h1>
+    <button id="new-note" onclick="new_note()">new note</button>
     <div id="list-of-notes">
-        list of all notes
     </div>
-    <button onclick="new_note()">new note</button>
 
     <script>
         const { remote, ipcRenderer } = require('electron')
@@ -50,12 +62,12 @@
 
         async function createIndexElement(id) {
             let data = await notestorage.getItem(id)
-            
+
             let content = document.createElement('section')
             content.innerText = data.content
-            content.style.minHeight = '3em'
+            content.classList.add('note-index')
 
-            content.addEventListener('click',() => open_note(id))
+            content.addEventListener('click', () => open_note(id))
 
             return content
         }
