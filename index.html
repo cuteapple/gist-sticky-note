@@ -54,7 +54,7 @@
                 }
 
                 for(let id of all_notes) {
-                    if(open_notes.has(id)) return;
+                    if(open_notes.has(id)) continue;
                     document.getElementById('list-of-notes').append(await createIndexElement(id))
                 }
             })()
