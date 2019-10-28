@@ -1,77 +1,77 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    #list-of-notes > * {
-      width: 100%;
-      border: 3px solid lightblue;
-      margin: 3px;
-    }
-  </style>
-  <title>Note List</title>
+        #list-of-notes > * {
+            width: 100%;
+            border: 3px solid lightblue;
+            margin: 3px;
+        }
+    </style>
+    <title>Note List</title>
 </head>
 <body>
-  <h1>Hello World!</h1>
-  <div id="list-of-notes">
-    list of all notes
-  </div>
-  <button onclick="new_note()">new note</button>
+    <h1>Hello World!</h1>
+    <div id="list-of-notes">
+        list of all notes
+    </div>
+    <button onclick="new_note()">new note</button>
 
-  <script>
-    const { ipcRenderer } = require('electron')
-    const localforage = require('localforage')
-    const metastorage = localforage.createInstance({ name: 'meta' })
-    const notestorage = localforage.createInstance({ name: 'notes' })
+    <script>
+        const { remote, ipcRenderer } = require('electron')
+        const localforage = require('localforage')
+        const metastorage = localforage.createInstance({ name: 'meta' })
+        const notestorage = localforage.createInstance({ name: 'notes' })
 
-    {
-      (async () => {
-        let notes = await load_notes()
-        //Todo?: use custom element
-        let noteelements = notes.map(id => {
-          let header = document.createElement('header')
-          header.innerText = id
-          let content = document.createElement('section')
-          content.innerText = '' + id + id + id;
-          let article = document.createElement('article')
-          article.append(header, content)
-          article.dataset.id = id
+        {
+            (async () => {
+                let open_notes = new Set(await metastorage.getItem('z-order') || [])
+                open_notes = (open_notes)
+                let all_notes = await notestorage.keys() || []
 
-          article.onclick = () => open_note(article.dataset.id)
+                for(let id of open_notes) {
+                    open_note(id)
+                    document.getElementById('list-of-notes').append(await createIndexElement(id))
+                }
 
-          return article
+                for(let id of all_notes) {
+                    if(open_notes.has(id)) return;
+                    document.getElementById('list-of-notes').append(await createIndexElement(id))
+                }
+            })()
+        }
+
+        async function createIndexElement(id) {
+            let data = await notestorage.getItem(id)
+            
+            let content = document.createElement('section')
+            content.innerText = data.content
+            content.style.minHeight = '3em'
+
+            content.addEventListener('click',() => open_note(id))
+
+            return content
+        }
+
+        function open_note(noteid) {
+            ipcRenderer.send('open-note', noteid)
+        }
+
+        function new_note() {
+            let id = '' + Date.now() + '.' + Math.random() * 100000
+            open_note(id)
+        }
+
+        ipcRenderer.on('order-changed', (sender, notes_order) => {
+            metastorage.setItem('z-order', notes_order)
         })
-
-        document.getElementById('list-of-notes').append(...noteelements)
-      })()
-    }
-
-    async function load_notes() {
-      let open_notes = await metastorage.getItem('z-order') || []
-      let all_notes = await notestorage.keys() || []
-      open_notes.forEach(open_note)
-
-      return all_notes
-    }
-
-    function open_note(noteid) {
-      ipcRenderer.send('open-note', noteid)
-    }
-
-    function new_note() {
-      let id = '' + Date.now() + '.' + Math.random() * 100000
-      open_note(id)
-    }
-
-    ipcRenderer.on('order-changed', (sender, notes_order) => {
-      metastorage.setItem('z-order', notes_order)
-    })
-  </script>
+    </script>
 </body>
 </html>
