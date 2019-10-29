@@ -13,6 +13,9 @@ let notelistWindow
 /**@type {Map<NoteId,BrowserWindow>} */
 let notes = new Map()
 
+/**the program is currently closing, do not process relevent events */
+let quitting = false
+
 ipcMain.addListener('open-list-window', (sender) => {
     notelistWindow.show()
 })
@@ -42,6 +45,8 @@ function open_note(id) {
     note.noteid = id
     note.loadFile('note.html')
     note.on('focus', () => {
+        console.log('closing', note.noteid)
+        if(quitting) return
         //refersh z-order
         notes.delete(note.noteid)
         notes.set(note.noteid, note)
@@ -49,8 +54,10 @@ function open_note(id) {
         notelistWindow.webContents.send('order-changed', [...notes.keys()])
     })
     note.on('closed', () => {
+        console.log('closed', note.noteid)
+        if(quitting) return
         notes.delete(note.noteid)
-        console.log(notes.size, notelistWindow.isVisible())
+        notelistWindow.webContents.send('order-changed', [...notes.keys()])
         if(!notes.size && !notelistWindow.isVisible()) {
             console.log('closing main window')
             mainWindow.close()
@@ -71,8 +78,10 @@ function initialize() {
     })
     mainWindow.setIgnoreMouseEvents(true)
     mainWindow.loadFile('app-icon.png')
+    mainWindow.on('close', () => { quitting = true })
     mainWindow.on('closed', function() {
         console.log('main window closed')
+        quitting = false
         mainWindow = null
     })
 
@@ -86,7 +95,8 @@ function initialize() {
         webPreferences: { nodeIntegration: true }
     })
     notelistWindow.on('close', ev => {
-        if(notes.size) {
+        console.log('notelist window closeing')
+        if(!quitting && notes.size) {
             ev.preventDefault();
             notelistWindow.hide()
         }
@@ -99,7 +109,7 @@ function initialize() {
 app.on('ready', initialize)
 
 ///
-/// To be honist I don't really understand what below codes doing (I can guess, though)
+/// To be honest I don't really understand what below codes doing (I can guess, though)
 ///
 
 // Quit when all windows are closed.
