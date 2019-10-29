@@ -3,11 +3,18 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
 
 /**@type {BrowserWindow} */
-let mainWindow, notelistWindow
+let mainWindow
+
+/**@type {BrowserWindow} */
+let notelistWindow
 
 /**@typedef {string} NoteId*/
 /**@type {Map<NoteId,BrowserWindow>} */
 let notes = new Map()
+
+ipcMain.addListener('open-list-window', (sender) => {
+    notelistWindow.show()
+})
 
 ipcMain.addListener('open-note', (sender, noteid) => open_note(noteid))
 function open_note(id) {

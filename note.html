@@ -89,6 +89,9 @@
     <header>
         <section id="window-handle"></section>
         <section id="window-toolbar">
+            <button onclick="open_list_window()">
+                <img src="icon-list.png" />
+            </button>
             <button onclick="close_window()">
                 <img src="icon-exit.png" />
             </button>
@@ -108,7 +111,7 @@
         ///
 
         const storage = require('localforage').createInstance({ name: 'notes' })
-        const { remote } = require('electron')
+        const { ipcRenderer, remote } = require('electron')
         const id = remote.getCurrentWindow().noteid
         const autosaveInterval = 100
         /**@type{HTMLTextAreaElement} */
@@ -147,7 +150,7 @@
             content_modified = true
         }
 
-        setInterval(function autosave(){
+        setInterval(function autosave() {
             if(!content_modified) return
             content_modified = false
             storage.setItem(id, {
@@ -166,6 +169,10 @@
             let webcontent = remote.getCurrentWebContents()
             if(webcontent.isDevToolsOpened()) webcontent.devToolsWebContents.focus()
             else webcontent.openDevTools()
+        }
+
+        function open_list_window() {
+            ipcRenderer.send('open-list-window')
         }
 
     </script>
