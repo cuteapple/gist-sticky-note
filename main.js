@@ -28,18 +28,14 @@ function open_note(id) {
 
     console.log(`opening note ${id}`)
     let note = new BrowserWindow({
+        parent: mainWindow,
         x: 30 + Math.round(Math.random() * 200),
         y: 30 + Math.round(Math.random() * 200),
         width: 100 + Math.round(Math.random() * 300),
         height: 100 + 32 + Math.round(Math.random() * 300),
-        transparent: false,
-        frame: false,
-        show: false,
-        backgroundColor: '#f0f',
-        parent: mainWindow,
-        webPreferences: {
-            nodeIntegration: true
-        }
+        transparent: false, frame: false, show: false,
+        backgroundColor: '#f0f', //not supposed to be seem
+        webPreferences: { nodeIntegration: true }
     })
 
     note.noteid = id
@@ -64,13 +60,13 @@ function open_note(id) {
 
 
 function initialize() {
+    ///
+    /// Create main window
+    ///
     mainWindow = new BrowserWindow({
-        x: -1000, y: -1000, width: 300, height: 400,
-        transparent: true,
-        frame: false,
-        webPreferences: {
-            nodeIntegration: true
-        }
+        x: -1000, y: -1000, width: 480, height: 300,
+        transparent: true, frame: false,
+        webPreferences: { nodeIntegration: true }
     })
     mainWindow.setIgnoreMouseEvents(true)
     mainWindow.loadFile('app-icon.png')
@@ -79,14 +75,14 @@ function initialize() {
         mainWindow = null
     })
 
+    ///
+    /// Create notelist window
+    ///
     notelistWindow = new BrowserWindow({
-        transparent: false,
-        frame: true,
         parent: mainWindow,
         x: 800, y: 100, height: 300, width: 400,
-        webPreferences: {
-            nodeIntegration: true
-        }
+        transparent: false, frame: true,
+        webPreferences: { nodeIntegration: true }
     })
     notelistWindow.on('close', ev => {
         if(notes.size) {
@@ -101,6 +97,9 @@ function initialize() {
 }
 app.on('ready', initialize)
 
+///
+/// To be honist I don't really understand what below codes doing (I can guess, though)
+///
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {

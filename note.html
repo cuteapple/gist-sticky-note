@@ -16,7 +16,6 @@
             background-color: transparent;
         }
 
-        /*DECISION?*/
         * {
             object-fit: contain
         }
@@ -32,7 +31,7 @@
             grid-template-rows: 32px minmax(0,1fr)
         }
 
-        /*NOTE: other methods to remove the space?*/
+        /*remove space*/
         header {
             font-size: 0
         }
@@ -105,10 +104,6 @@
     </section>
 
     <script>
-
-        ///
-        /// note: avoid ipc (for no specific reason) 2019.10.29
-        ///
 
         const storage = require('localforage').createInstance({ name: 'notes' })
         const { ipcRenderer, remote } = require('electron')
