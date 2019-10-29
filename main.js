@@ -45,7 +45,7 @@ function open_note(id) {
     note.noteid = id
     note.loadFile('note.html')
     note.on('focus', () => {
-        console.log('closing', note.noteid)
+        console.log('focus', note.noteid)
         if(quitting) return
         //refersh z-order
         notes.delete(note.noteid)
@@ -53,6 +53,7 @@ function open_note(id) {
         //Todo: observe change of notes
         notelistWindow.webContents.send('order-changed', [...notes.keys()])
     })
+
     note.on('closed', () => {
         console.log('closed', note.noteid)
         if(quitting) return
