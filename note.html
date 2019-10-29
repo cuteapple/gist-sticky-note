@@ -98,7 +98,7 @@
         </section>
     </header>
     <section id="content">
-        <textarea onchange="save()"></textarea>
+        <textarea oninput="save()"></textarea>
     </section>
 
     <script>
@@ -110,6 +110,7 @@
         const storage = require('localforage').createInstance({ name: 'notes' })
         const { remote } = require('electron')
         const id = remote.getCurrentWindow().noteid
+        const autosaveInterval = 100
         /**@type{HTMLTextAreaElement} */
         const textContentElement = document.querySelector('#content textarea')
 
@@ -141,13 +142,21 @@
         remote.getCurrentWindow().addListener('moved', save)
         remote.getCurrentWindow().addListener('resize', save)
 
+        let content_modified = false
         function save() {
+            content_modified = true
+        }
+
+        setInterval(function autosave(){
+            if(!content_modified) return
+            content_modified = false
             storage.setItem(id, {
                 bounds: remote.getCurrentWindow().getBounds(),
                 content: textContentElement.value
             })
             console.log(`note ${id} saved`)
-        }
+        }, autosaveInterval)
+
 
         function close_window() {
             remote.getCurrentWindow().close()
