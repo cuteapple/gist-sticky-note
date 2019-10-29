@@ -55,8 +55,10 @@ function initialize() {
 	mainWindow = new BrowserWindow({
 		//x: -1, y: -1, width: 1, height: 1,
 		transparent: false,
-		frame: true,
-		x: 800, y: 100, height: 300, width: 400,
+        frame: true,
+        //no use
+        //backgroundThrottling: false, //REVIEW: not ideal... but the text would't change for some special reason
+        x: 800, y: 100, height: 300, width: 400,
 		webPreferences: {
 			nodeIntegration: true
 		}

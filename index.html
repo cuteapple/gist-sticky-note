@@ -48,6 +48,8 @@
         async function refersh() {
             //note: only foreground window should update
             let target = list_of_index.firstElementChild
+            //content isn't change ...?
+            console.log('updating', target.dataset.id, (await notestorage.getItem(target.dataset.id)).content)
             target.innerText = (await notestorage.getItem(target.dataset.id)).content
         }
 
@@ -96,9 +98,9 @@
 
         //CHECK: hope I can listen to indexDB change :/
         let refersh_interval = setInterval(refersh, 100)
-            //window.addEventListener('focus', () => clearInterval(refersh_interval))
-            //window.addEventListener('focus', refersh)
-            //window.addEventListener('blur', () => refersh_interval = setInterval(refersh, 100))
+                    //window.addEventListener('focus', () => clearInterval(refersh_interval))
+                    //window.addEventListener('focus', refersh)
+                    //window.addEventListener('blur', () => refersh_interval = setInterval(refersh, 100))
     </script>
 </body>
 </html>
