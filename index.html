@@ -37,7 +37,7 @@
     </div>
 
     <script>
-        const { remote, ipcRenderer } = require('electron')
+        const { ipcRenderer } = require('electron')
         const localforage = require('localforage')
         const metastorage = localforage.createInstance({ name: 'meta' })
         const notestorage = localforage.createInstance({ name: 'notes' })
@@ -45,34 +45,10 @@
 
         initilize()
 
-        //TODO?: per note wise update (?: more efficent?)
-        //TODO?: only focus on active note (bring to foreground => move to top and listen)
-        //TODO?: check update date
         async function refersh() {
-            let existing_index = new Map([...list_of_index.children].map(e => [e.dataset.id, e]))
-            let open_notes = new Set(await metastorage.getItem('z-order') || [])
-            let all_notes = await notestorage.keys() || []
-
-            async function update_or_create_index(id) {
-                let current = existing_index.get(id)
-                if(current) {
-                    current.innerText = (await notestorage.getItem(id)).content
-                }
-                else {
-                    current = await createIndexElement(id)
-                }
-                return current
-            }
-
-            for(let id of open_notes) {
-                list_of_index.insertAdjacentElement('beforeend', await update_or_create_index(id))
-            }
-
-            for(let id of all_notes) {
-                if(open_notes.has(id)) continue;
-                list_of_index.insertAdjacentElement('beforeend', await update_or_create_index(id))
-            }
-
+            //note: only foreground window should update
+            let target = list_of_index.firstElementChild
+            target.innerText = (await notestorage.getItem(target.dataset.id)).content
         }
 
         async function initilize() {
@@ -81,24 +57,25 @@
 
             for(let id of open_notes) {
                 open_note(id)
-                list_of_index.append(await createIndexElement(id))
+                list_of_index.append(createIndexElement(id))
             }
 
             for(let id of all_notes) {
                 if(open_notes.has(id)) continue;
-                list_of_index.append(await createIndexElement(id))
+                list_of_index.append(createIndexElement(id))
             }
         }
 
         //TODO!:custom element (also benefit refresh)
-        async function createIndexElement(id) {
-            let data = await notestorage.getItem(id)
+        function createIndexElement(id) {
 
             let content = document.createElement('section')
-            content.innerText = data.content
             content.classList.add('note-index')
             content.dataset.id = id
             content.addEventListener('click', () => open_note(id))
+
+            //async load content
+            notestorage.getItem(id).then(data => content.innerText = data.content).catch(() => { /*no saved content*/ })
 
             return content
         }
@@ -114,10 +91,13 @@
 
         ipcRenderer.on('order-changed', (sender, notes_order) => {
             metastorage.setItem('z-order', notes_order)
+            let id = notes_order[notes_order.length - 1]
+            let node = list_of_index.querySelector(`[data-id="${id}"]`) || createIndexElement(id)
+            list_of_index.insertAdjacentElement('afterbegin', node)
         })
 
-        //CHECK: hope I can listen to indexDB change
-        window.addEventListener('focus', refersh)
+        //CHECK: hope I can listen to indexDB change :/
+        let refersh_interval = setInterval(refersh, 100)
     </script>
 </body>
 </html>
