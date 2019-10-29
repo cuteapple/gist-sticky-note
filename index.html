@@ -1,77 +1,103 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    #list-of-notes > * {
-      width: 100%;
-      border: 3px solid lightblue;
-      margin: 3px;
-    }
-  </style>
-  <title>Note List</title>
+        #new-note {
+            width: 100%;
+            padding: 6px;
+        }
+
+        #list-of-index {
+            width: 100%;
+            padding: 6px;
+        }
+
+        .note-index {
+            width: 100%;
+            border: 3px solid lightblue;
+            min-height: 3em;
+            max-height: 6em;
+            margin: 3px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+    <title>Note List</title>
 </head>
 <body>
-  <h1>Hello World!</h1>
-  <div id="list-of-notes">
-    list of all notes
-  </div>
-  <button onclick="new_note()">new note</button>
+    <button id="new-note" onclick="new_note()">new note</button>
+    <div id="list-of-index">
+    </div>
 
-  <script>
-    const { ipcRenderer } = require('electron')
-    const localforage = require('localforage')
-    const metastorage = localforage.createInstance({ name: 'meta' })
-    const notestorage = localforage.createInstance({ name: 'notes' })
+    <script>
+        const { ipcRenderer } = require('electron')
+        const localforage = require('localforage')
+        const metastorage = localforage.createInstance({ name: 'meta' })
+        const notestorage = localforage.createInstance({ name: 'notes' })
+        const list_of_index = document.getElementById('list-of-index')
 
-    {
-      (async () => {
-        let notes = await load_notes()
-        //Todo?: use custom element
-        let noteelements = notes.map(id => {
-          let header = document.createElement('header')
-          header.innerText = id
-          let content = document.createElement('section')
-          content.innerText = '' + id + id + id;
-          let article = document.createElement('article')
-          article.append(header, content)
-          article.dataset.id = id
+        initilize()
 
-          article.onclick = () => open_note(article.dataset.id)
+        async function refersh() {
+            //note: only foreground window should update
+            let target = list_of_index.firstElementChild
+            target.innerText = (await notestorage.getItem(target.dataset.id)).content
+        }
 
-          return article
+        async function initilize() {
+            let open_notes = new Set(await metastorage.getItem('z-order') || [])
+            let all_notes = await notestorage.keys() || []
+
+            for(let id of open_notes) {
+                open_note(id)
+                list_of_index.append(createIndexElement(id))
+            }
+
+            for(let id of all_notes) {
+                if(open_notes.has(id)) continue;
+                list_of_index.append(createIndexElement(id))
+            }
+        }
+
+        //TODO!:custom element (also benefit refresh)
+        function createIndexElement(id) {
+
+            let content = document.createElement('section')
+            content.classList.add('note-index')
+            content.dataset.id = id
+            content.addEventListener('click', () => open_note(id))
+
+            //async load content
+            notestorage.getItem(id).then(data => content.innerText = data.content).catch(() => { /*no saved content*/ })
+
+            return content
+        }
+
+        function open_note(noteid) {
+            ipcRenderer.send('open-note', noteid)
+        }
+
+        function new_note() {
+            let id = '' + Date.now() + '.' + Math.random() * 100000
+            open_note(id)
+        }
+
+        ipcRenderer.on('order-changed', (sender, notes_order) => {
+            metastorage.setItem('z-order', notes_order)
+            let id = notes_order[notes_order.length - 1]
+            let node = list_of_index.querySelector(`[data-id="${id}"]`) || createIndexElement(id)
+            list_of_index.insertAdjacentElement('afterbegin', node)
         })
 
-        document.getElementById('list-of-notes').append(...noteelements)
-      })()
-    }
-
-    async function load_notes() {
-      let open_notes = await metastorage.getItem('z-order') || []
-      let all_notes = await notestorage.keys() || []
-      open_notes.forEach(open_note)
-
-      return all_notes
-    }
-
-    function open_note(noteid) {
-      ipcRenderer.send('open-note', noteid)
-    }
-
-    function new_note() {
-      let id = '' + Date.now() + '.' + Math.random() * 100000
-      open_note(id)
-    }
-
-    ipcRenderer.on('order-changed', (sender, notes_order) => {
-      metastorage.setItem('z-order', notes_order)
-    })
-  </script>
+        //CHECK: hope I can listen to indexDB change :/
+        let refersh_interval = setInterval(refersh, 100)
+    </script>
 </body>
 </html>
