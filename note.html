@@ -116,7 +116,12 @@
 
         async function load() {
             const default_config = {
-                bounds: remote.getCurrentWindow().getBounds(),
+                bounds: {
+                    x: 30 + Math.round(Math.random() * 200),
+                    y: 30 + Math.round(Math.random() * 200),
+                    width: 100 + Math.round(Math.random() * 300),
+                    height: 100 + 32 + Math.round(Math.random() * 300),
+                },
                 content: '',
             }
 
