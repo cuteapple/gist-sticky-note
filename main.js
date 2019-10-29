@@ -17,6 +17,7 @@ ipcMain.addListener('open-list-window', (sender) => {
 })
 
 ipcMain.addListener('open-note', (sender, noteid) => open_note(noteid))
+
 function open_note(id) {
     //check if already open
     if(notes.has(id)) {
@@ -52,8 +53,11 @@ function open_note(id) {
     })
     note.on('closed', () => {
         notes.delete(note.noteid)
-        //Todo: condition
-        //if (!notes.size) mainWindow.close() //no need when mainWindow is visible
+        console.log(notes.size, notelistWindow.isVisible())
+        if(!notes.size && !notelistWindow.isVisible()) {
+            console.log('closing main window')
+            mainWindow.close()
+        }
     })
     notes.set(note.noteid, note)
 }
@@ -71,6 +75,7 @@ function initialize() {
     mainWindow.setIgnoreMouseEvents(true)
     mainWindow.loadFile('app-icon.png')
     mainWindow.on('closed', function() {
+        console.log('main window closed')
         mainWindow = null
     })
 
@@ -83,7 +88,15 @@ function initialize() {
             nodeIntegration: true
         }
     })
-    notelistWindow.on('close', ev => { ev.preventDefault(); notelistWindow.hide() })
+    notelistWindow.on('close', ev => {
+        if(notes.size) {
+            ev.preventDefault();
+            notelistWindow.hide()
+        }
+        else {
+            mainWindow.close()
+        }
+    })
     notelistWindow.loadFile('index.html')
 }
 app.on('ready', initialize)
@@ -102,6 +115,6 @@ app.on('activate', function() {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if(mainWindow === null) {
-        createWindow()
+        initialize()
     }
 })
