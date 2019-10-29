@@ -37,7 +37,7 @@
     </div>
 
     <script>
-        const { remote, ipcRenderer } = require('electron')
+        const { ipcRenderer } = require('electron')
         const localforage = require('localforage')
         const metastorage = localforage.createInstance({ name: 'meta' })
         const notestorage = localforage.createInstance({ name: 'notes' })
@@ -45,34 +45,10 @@
 
         initilize()
 
-        //TODO?: per note wise update (?: more efficent?)
-        //TODO?: only focus on active note (bring to foreground => move to top and listen)
-        //TODO?: check update date
         async function refersh() {
-            let existing_index = new Map([...list_of_index.children].map(e => [e.dataset.id, e]))
-            let open_notes = new Set(await metastorage.getItem('z-order') || [])
-            let all_notes = await notestorage.keys() || []
-
-            async function update_or_create_index(id) {
-                let current = existing_index.get(id)
-                if(current) {
-                    current.innerText = (await notestorage.getItem(id)).content
-                }
-                else {
-                    current = await createIndexElement(id)
-                }
-                return current
-            }
-
-            for(let id of open_notes) {
-                list_of_index.insertAdjacentElement('beforeend', await update_or_create_index(id))
-            }
-
-            for(let id of all_notes) {
-                if(open_notes.has(id)) continue;
-                list_of_index.insertAdjacentElement('beforeend', await update_or_create_index(id))
-            }
-
+            //note: only foreground window should update
+            let target = list_of_index.firstElementChild
+            target.innerText = (await notestorage.getItem(target.dataset.id)).content
         }
 
         async function initilize() {
@@ -114,10 +90,15 @@
 
         ipcRenderer.on('order-changed', (sender, notes_order) => {
             metastorage.setItem('z-order', notes_order)
+            let last = notes_order[notes_order.length - 1]
+            list_of_index.insertAdjacentElement('afterbegin', list_of_index.querySelector(`[data-id="${last}"]`))
         })
 
-        //CHECK: hope I can listen to indexDB change
-        window.addEventListener('focus', refersh)
+        //CHECK: hope I can listen to indexDB change :/
+        let refersh_interval = setInterval(refersh, 100)
+            //window.addEventListener('focus', () => clearInterval(refersh_interval))
+            //window.addEventListener('focus', refersh)
+            //window.addEventListener('blur', () => refersh_interval = setInterval(refersh, 100))
     </script>
 </body>
 </html>
