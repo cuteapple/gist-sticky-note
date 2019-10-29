@@ -114,7 +114,7 @@
         /**@type{HTMLTextAreaElement} */
         const textContentElement = document.querySelector('#content textarea')
 
-        load()
+        load().then(save) //design: save empty note?
 
         async function load() {
             const default_config = {

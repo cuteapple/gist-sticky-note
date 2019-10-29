@@ -75,7 +75,7 @@
             content.addEventListener('click', () => open_note(id))
 
             //async load content
-            notestorage.getItem(id).then(data => content.innerText = data.content)
+            notestorage.getItem(id).then(data => content.innerText = data.content).catch(() => { /*no saved content*/ })
 
             return content
         }
