@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 // I like warnning, why I need to disable all :(
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true
 
+/**placeholder window, provide icon and window collection (parent) */
 /**@type {BrowserWindow} */
 let mainWindow
 
@@ -66,7 +67,7 @@ function initialize() {
     mainWindow = new BrowserWindow({
         x: -1000, y: -1000, width: 480, height: 300,
         transparent: true, frame: false,
-        webPreferences: { nodeIntegration: true }
+        webPreferences: { nodeIntegration: false }
     })
     mainWindow.setIgnoreMouseEvents(true)
     mainWindow.loadFile('app-icon.png')
