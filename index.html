@@ -48,8 +48,6 @@
         async function refersh() {
             //note: only foreground window should update
             let target = list_of_index.firstElementChild
-            //content isn't change ...?
-            console.log('updating', target.dataset.id, (await notestorage.getItem(target.dataset.id)).content)
             target.innerText = (await notestorage.getItem(target.dataset.id)).content
         }
 
@@ -59,24 +57,25 @@
 
             for(let id of open_notes) {
                 open_note(id)
-                list_of_index.append(await createIndexElement(id))
+                list_of_index.append(createIndexElement(id))
             }
 
             for(let id of all_notes) {
                 if(open_notes.has(id)) continue;
-                list_of_index.append(await createIndexElement(id))
+                list_of_index.append(createIndexElement(id))
             }
         }
 
         //TODO!:custom element (also benefit refresh)
-        async function createIndexElement(id) {
-            let data = await notestorage.getItem(id)
+        function createIndexElement(id) {
 
             let content = document.createElement('section')
-            content.innerText = data.content
             content.classList.add('note-index')
             content.dataset.id = id
             content.addEventListener('click', () => open_note(id))
+
+            //async load content
+            notestorage.getItem(id).then(data => content.innerText = data.content)
 
             return content
         }
@@ -92,15 +91,13 @@
 
         ipcRenderer.on('order-changed', (sender, notes_order) => {
             metastorage.setItem('z-order', notes_order)
-            let last = notes_order[notes_order.length - 1]
-            list_of_index.insertAdjacentElement('afterbegin', list_of_index.querySelector(`[data-id="${last}"]`))
+            let id = notes_order[notes_order.length - 1]
+            let node = list_of_index.querySelector(`[data-id="${id}"]`) || createIndexElement(id)
+            list_of_index.insertAdjacentElement('afterbegin', node)
         })
 
         //CHECK: hope I can listen to indexDB change :/
         let refersh_interval = setInterval(refersh, 100)
-                    //window.addEventListener('focus', () => clearInterval(refersh_interval))
-                    //window.addEventListener('focus', refersh)
-                    //window.addEventListener('blur', () => refersh_interval = setInterval(refersh, 100))
     </script>
 </body>
 </html>
