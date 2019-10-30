@@ -100,7 +100,7 @@
         </section>
     </header>
     <section id="content">
-        <textarea oninput="save()"></textarea>
+        <textarea oninput="mtime = Date.now(); modified = true"></textarea>
     </section>
 
     <script>
@@ -108,16 +108,41 @@
         const storage = require('localforage').createInstance({ name: 'notes' })
         const { ipcRenderer, remote } = require('electron')
         const id = remote.getCurrentWindow().noteid
-        const autosaveInterval = 100
         /**@type{HTMLTextAreaElement} */
         const textContentElement = document.querySelector('#content textarea')
 
-        load().then(save) //design: save empty note?
+        let mtime
+        let modified = false
+        function save() { modified = true }
+        const autosaveInterval = 100
+
+        load().then(save) //design: save empty note? (who can change modified)
+
+        remote.getCurrentWindow().addListener('moved', save)
+        remote.getCurrentWindow().addListener('resize', save)
+
+        setInterval(function autosave() {
+            if(!modified) return
+            modified = false
+            storage.setItem(id, {
+                bounds: remote.getCurrentWindow().getBounds(),
+                content: textContentElement.value,
+                mtime
+            })
+            console.log(`note ${id} saved`)
+        }, autosaveInterval)
 
         async function load() {
+            /// read config
             const default_config = {
-                bounds: remote.getCurrentWindow().getBounds(),
+                bounds: {
+                    x: 30 + Math.round(Math.random() * 200),
+                    y: 30 + Math.round(Math.random() * 200),
+                    width: 100 + Math.round(Math.random() * 300),
+                    height: 100 + 32 + Math.round(Math.random() * 300),
+                },
                 content: '',
+                mtime: 0
             }
 
             let memory = await storage.getItem(id).catch(err => {
@@ -131,30 +156,15 @@
             console.log('memory', memory)
             console.log('config', config)
 
+            /// apply config
             textContentElement.value = config.content
             remote.getCurrentWindow().setBounds(config.bounds)
+            mtime = config.mtime
+
+            /// show the window
             remote.getCurrentWindow().show()
             console.log(`note ${id} opened`)
         }
-
-        remote.getCurrentWindow().addListener('moved', save)
-        remote.getCurrentWindow().addListener('resize', save)
-
-        let content_modified = false
-        function save() {
-            content_modified = true
-        }
-
-        setInterval(function autosave() {
-            if(!content_modified) return
-            content_modified = false
-            storage.setItem(id, {
-                bounds: remote.getCurrentWindow().getBounds(),
-                content: textContentElement.value
-            })
-            console.log(`note ${id} saved`)
-        }, autosaveInterval)
-
 
         function close_window() {
             remote.getCurrentWindow().close()

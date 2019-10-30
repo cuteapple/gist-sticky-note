@@ -9,6 +9,7 @@ let mainWindow
 /**@type {BrowserWindow} */
 let notelistWindow
 
+/**tracking opening notes*/
 /**@typedef {string} NoteId*/
 /**@type {Map<NoteId,BrowserWindow>} */
 let notes = new Map()
@@ -16,9 +17,7 @@ let notes = new Map()
 /**the program is currently closing, do not process relevent events */
 let quitting = false
 
-ipcMain.addListener('open-list-window', (sender) => {
-    notelistWindow.show()
-})
+ipcMain.addListener('open-list-window', (sender) => { notelistWindow.show() })
 
 ipcMain.addListener('open-note', (sender, noteid) => open_note(noteid))
 
@@ -33,10 +32,6 @@ function open_note(id) {
     console.log(`opening note ${id}`)
     let note = new BrowserWindow({
         parent: mainWindow,
-        x: 30 + Math.round(Math.random() * 200),
-        y: 30 + Math.round(Math.random() * 200),
-        width: 100 + Math.round(Math.random() * 300),
-        height: 100 + 32 + Math.round(Math.random() * 300),
         transparent: false, frame: false, show: false,
         backgroundColor: '#f0f', //not supposed to be seem
         webPreferences: { nodeIntegration: true }
