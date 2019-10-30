@@ -54,6 +54,7 @@
         async function initilize() {
             let open_notes = new Set(await metastorage.getItem('z-order') || [])
             let all_notes = await notestorage.keys() || []
+            
 
             for(let id of open_notes) {
                 open_note(id)
@@ -89,7 +90,13 @@
             open_note(id)
         }
 
-        ipcRenderer.on('order-changed', (sender, notes_order) => {
+        ipcRenderer.on('note-focused', (sender, noteid) => {
+            let node = list_of_index.querySelector(`[data-id="${noteid}"]`) || createIndexElement(noteid) //move create to new_note
+            list_of_index.insertAdjacentElement('afterbegin', node)
+            metastorage.setItem('z-order', [...list_of_index.children].map(x => x.dataset.noteid))
+        })
+
+        ipcRenderer.on('note-closed', (sender, noteid) => {
             metastorage.setItem('z-order', notes_order)
             let id = notes_order[notes_order.length - 1]
             let node = list_of_index.querySelector(`[data-id="${id}"]`) || createIndexElement(id)
