@@ -10,7 +10,6 @@ let mainWindow
 let notelistWindow
 
 /**tracking opening notes*/
-/**@typedef {string} NoteId*/
 /**@type {Map<NoteId,BrowserWindow>} */
 let noteWindows = new Map()
 
