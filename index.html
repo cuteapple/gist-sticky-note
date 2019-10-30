@@ -48,12 +48,23 @@
         /**@type {Set<NoteId>} */
         let open_notes
 
+        /**@type {HTMLElement} */
+        let foreground_note = null
+
         initilize()
 
+        //check: hope I can listen to indexDB change :/
+        //note: assume only foreground window would update
+        setInterval(refersh, 100)
         async function refersh() {
-            //note: only foreground window should update
-            let target = list_of_index.firstElementChild
-            target.innerText = (await notestorage.getItem(target.dataset.id)).content
+            if(!foreground_note) return;
+            let data = await notestorage.getItem(foreground_note.dataset.id)
+            if(!data) return; //not yet saved
+            if(data.mtime <= +foreground_note.dataset.mtime) return; //no update
+
+            foreground_note.innerText = data.content
+            foreground_note.dataset.mtime = data.mtime
+            list_of_index.insertAdjacentElement('afterbegin', foreground_note)
         }
 
         async function initilize() {
@@ -62,7 +73,7 @@
             all_notes.sort((a, b) => b.data.mtime - a.data.mtime)//order by desc mtime
 
             for(let { id, data } of all_notes) {
-                list_of_index.append(createIndexElement(id, data))
+                list_of_index.append(createIndexElement(id))
             }
 
             open_notes = await metastorage.getItem('z-order') || new Set()
@@ -72,7 +83,7 @@
         }
 
         //TODO: custom element
-        function createIndexElement(id, data) {
+        function createIndexElement(id) {
 
             let content = document.createElement('section')
             content.classList.add('note-index')
@@ -80,7 +91,11 @@
             content.addEventListener('click', () => open_note(id))
 
             //async load content
-            notestorage.getItem(id).then(data => content.innerText = data.content).catch(() => { /*no saved content*/ })
+            notestorage.getItem(id).then(data => {
+                if(!data) data = { content: '', mtime: 0 }
+                content.innerText = data.content
+                content.dataset.mtime = data.mtime
+            })
 
             return content
         }
@@ -91,24 +106,23 @@
 
         function new_note() {
             let id = '' + Date.now() + '.' + Math.random() * 100000
+            list_of_index.append(createIndexElement(id))
             open_note(id)
         }
 
         ipcRenderer.on('note-focused', (sender, noteid) => {
-            let node = list_of_index.querySelector(`[data-id="${noteid}"]`) || createIndexElement(noteid) //move create to new_note
-            list_of_index.insertAdjacentElement('afterbegin', node)
+            foreground_note = list_of_index.querySelector(`[data-id="${noteid}"]`)
             open_notes.delete(noteid)
             open_notes.add(noteid)
             metastorage.setItem('z-order', open_notes)
         })
 
         ipcRenderer.on('note-closed', (sender, noteid) => {
+            if(foreground_note.dataset.id == noteid) foreground_note = null
             open_notes.delete(noteid)
             metastorage.setItem('z-order', open_notes)
         })
 
-        //CHECK: hope I can listen to indexDB change :/
-        let refersh_interval = setInterval(refersh, 100)
     </script>
 </body>
 </html>
