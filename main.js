@@ -9,6 +9,7 @@ let mainWindow
 /**@type {BrowserWindow} */
 let notelistWindow
 
+/**tracking opening notes*/
 /**@typedef {string} NoteId*/
 /**@type {Map<NoteId,BrowserWindow>} */
 let notes = new Map()
@@ -16,9 +17,7 @@ let notes = new Map()
 /**the program is currently closing, do not process relevent events */
 let quitting = false
 
-ipcMain.addListener('open-list-window', (sender) => {
-    notelistWindow.show()
-})
+ipcMain.addListener('open-list-window', (sender) => { notelistWindow.show() })
 
 ipcMain.addListener('open-note', (sender, noteid) => open_note(noteid))
 

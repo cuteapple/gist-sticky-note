@@ -100,7 +100,7 @@
         </section>
     </header>
     <section id="content">
-        <textarea oninput="save()"></textarea>
+        <textarea oninput="mtime = Date.now(); modified = true"></textarea>
     </section>
 
     <script>
@@ -112,9 +112,13 @@
         /**@type{HTMLTextAreaElement} */
         const textContentElement = document.querySelector('#content textarea')
 
+        let mtime = 0
+        let modified = false
+
         load().then(save) //design: save empty note?
 
         async function load() {
+            /// read config
             const default_config = {
                 bounds: {
                     x: 30 + Math.round(Math.random() * 200),
@@ -136,26 +140,27 @@
             console.log('memory', memory)
             console.log('config', config)
 
+            /// apply config
             textContentElement.value = config.content
             remote.getCurrentWindow().setBounds(config.bounds)
+
+            /// show the window
             remote.getCurrentWindow().show()
             console.log(`note ${id} opened`)
         }
 
-        remote.getCurrentWindow().addListener('moved', save)
-        remote.getCurrentWindow().addListener('resize', save)
+        remote.getCurrentWindow().addListener('moved', () => { modified = true })
+        remote.getCurrentWindow().addListener('resize', () => { modified = true })
 
-        let content_modified = false
-        function save() {
-            content_modified = true
-        }
+        
 
         setInterval(function autosave() {
-            if(!content_modified) return
-            content_modified = false
+            if(!modified) return
+            modified = false
             storage.setItem(id, {
                 bounds: remote.getCurrentWindow().getBounds(),
-                content: textContentElement.value
+                content: textContentElement.value,
+                mtime
             })
             console.log(`note ${id} saved`)
         }, autosaveInterval)
