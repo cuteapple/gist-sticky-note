@@ -10,60 +10,57 @@ let mainWindow
 let notelistWindow
 
 /**tracking opening notes*/
-/**@typedef {string} NoteId*/
 /**@type {Map<NoteId,BrowserWindow>} */
-let notes = new Map()
+let noteWindows = new Map()
 
 /**the program is currently closing, do not process relevent events */
 let quitting = false
 
 ipcMain.addListener('open-list-window', (sender) => { notelistWindow.show() })
-
 ipcMain.addListener('open-note', (sender, noteid) => open_note(noteid))
 
-function open_note(id) {
+function open_note(noteid) {
     //check if already open
-    if(notes.has(id)) {
-        notes.get(id).focus()
-        console.log(`bring note ${id} to front`)
+    if(noteWindows.has(noteid)) {
+        noteWindows.get(noteid).focus()
+        console.log(`bring note ${noteid} to front`)
         return
     }
 
-    console.log(`opening note ${id}`)
+    console.log(`opening note ${noteid}`)
     let note = new BrowserWindow({
         parent: mainWindow,
         transparent: false, frame: false, show: false,
-        backgroundColor: '#f0f', //not supposed to be seem
+        backgroundColor: '#fff', //not supposed to be seem (but it appear when resize)
         webPreferences: { nodeIntegration: true }
     })
 
-    note.noteid = id
+    note.noteid = noteid
     note.loadFile('note.html')
+
     note.on('focus', () => {
         console.log('focus', note.noteid)
         if(quitting) return
-        //refersh z-order
-        notes.delete(note.noteid)
-        notes.set(note.noteid, note)
-        //Todo: observe change of notes
-        notelistWindow.webContents.send('order-changed', [...notes.keys()])
+        notelistWindow.webContents.send('note-focused', noteid)
     })
 
     note.on('closed', () => {
         console.log('closed', note.noteid)
+        noteWindows.delete(note.noteid)
         if(quitting) return
-        notes.delete(note.noteid)
-        notelistWindow.webContents.send('order-changed', [...notes.keys()])
-        if(!notes.size && !notelistWindow.isVisible()) {
+        notelistWindow.webContents.send('note-closed', noteid)
+        if(!noteWindows.size && !notelistWindow.isVisible()) {
             console.log('closing main window')
             mainWindow.close()
         }
     })
-    notes.set(note.noteid, note)
+    noteWindows.set(note.noteid, note)
 }
 
 
 function initialize() {
+    quitting = false
+
     ///
     /// Create main window
     ///
@@ -75,9 +72,8 @@ function initialize() {
     mainWindow.setIgnoreMouseEvents(true)
     mainWindow.loadFile('app-icon.png')
     mainWindow.on('close', () => { quitting = true })
-    mainWindow.on('closed', function() {
+    mainWindow.on('closed', () => {
         console.log('main window closed')
-        quitting = false
         mainWindow = null
     })
 
@@ -92,7 +88,9 @@ function initialize() {
     })
     notelistWindow.on('close', ev => {
         console.log('notelist window closeing')
-        if(!quitting && notes.size) {
+        if(quitting) return;
+
+        if(noteWindows.size) {
             ev.preventDefault();
             notelistWindow.hide()
         }
