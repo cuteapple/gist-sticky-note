@@ -108,14 +108,29 @@
         const storage = require('localforage').createInstance({ name: 'notes' })
         const { ipcRenderer, remote } = require('electron')
         const id = remote.getCurrentWindow().noteid
-        const autosaveInterval = 100
         /**@type{HTMLTextAreaElement} */
         const textContentElement = document.querySelector('#content textarea')
 
-        let mtime = 0
+        let mtime
         let modified = false
+        function save() { modified = true }
+        const autosaveInterval = 100
 
-        load().then(save) //design: save empty note?
+        load().then(save) //design: save empty note? (who can change modified)
+
+        remote.getCurrentWindow().addListener('moved', save)
+        remote.getCurrentWindow().addListener('resize', save)
+
+        setInterval(function autosave() {
+            if(!modified) return
+            modified = false
+            storage.setItem(id, {
+                bounds: remote.getCurrentWindow().getBounds(),
+                content: textContentElement.value,
+                mtime
+            })
+            console.log(`note ${id} saved`)
+        }, autosaveInterval)
 
         async function load() {
             /// read config
@@ -127,6 +142,7 @@
                     height: 100 + 32 + Math.round(Math.random() * 300),
                 },
                 content: '',
+                mtime: 0
             }
 
             let memory = await storage.getItem(id).catch(err => {
@@ -143,28 +159,12 @@
             /// apply config
             textContentElement.value = config.content
             remote.getCurrentWindow().setBounds(config.bounds)
+            mtime = config.mtime
 
             /// show the window
             remote.getCurrentWindow().show()
             console.log(`note ${id} opened`)
         }
-
-        remote.getCurrentWindow().addListener('moved', () => { modified = true })
-        remote.getCurrentWindow().addListener('resize', () => { modified = true })
-
-        
-
-        setInterval(function autosave() {
-            if(!modified) return
-            modified = false
-            storage.setItem(id, {
-                bounds: remote.getCurrentWindow().getBounds(),
-                content: textContentElement.value,
-                mtime
-            })
-            console.log(`note ${id} saved`)
-        }, autosaveInterval)
-
 
         function close_window() {
             remote.getCurrentWindow().close()
