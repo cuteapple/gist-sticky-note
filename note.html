@@ -81,7 +81,18 @@
             #content > textarea {
                 resize: none
             }
+
+        [just-to-pickup-color] {
+            background-color: lightgray;
+            background-color:gray;
+        }
     </style>
+    <script>
+        const color_set = [
+            { header: '#50ffc4', body: '#9fffc1' },
+            { header: 'gray', body: 'lightgray' }
+        ]
+     </script>
 </head>
 
 <body>
@@ -111,7 +122,7 @@
         /**@type{HTMLTextAreaElement} */
         const textContentElement = document.querySelector('#content textarea')
 
-        let mtime
+        let mtime, colorsetIndex
         let modified = false
         function save() { modified = true }
         const autosaveInterval = 100
@@ -127,7 +138,8 @@
             storage.setItem(id, {
                 bounds: remote.getCurrentWindow().getBounds(),
                 content: textContentElement.value,
-                mtime
+                mtime,
+                colorsetIndex
             })
             console.log(`note ${id} saved`)
         }, autosaveInterval)
@@ -142,14 +154,15 @@
                     height: 100 + 32 + Math.round(Math.random() * 300),
                 },
                 content: '',
-                mtime: 0
+                mtime: 0,
+                colorsetIndex: 0 //TODO: index (simple? esay to extend color (ex:border-color)) or full object (easy to update color table (reduce length))
             }
 
             let memory = await storage.getItem(id).catch(err => {
                 console.warn(`load note ${id} failed: ${err}`)
                 return {}
             })
-
+        
             let config = { ...default_config, ...memory }
 
             console.log('default_config', default_config)
@@ -160,6 +173,9 @@
             textContentElement.value = config.content
             remote.getCurrentWindow().setBounds(config.bounds)
             mtime = config.mtime
+            colorsetIndex = config.colorsetIndex
+            document.querySelector('header').style.backgroundColor = color_set[colorsetIndex].header
+            document.querySelector('#content').style.backgroundColor = color_set[colorsetIndex].body
 
             /// show the window
             remote.getCurrentWindow().show()
